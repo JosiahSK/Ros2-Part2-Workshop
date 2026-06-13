@@ -1,6 +1,6 @@
 # ROS 2 Development Workflow: Workspace, Package, Build, URDF and RViz
 
-Welcome to the **ROS 2 Day 3 Workshop** repository. This workspace-ready collection of educational modules is designed specifically for students and beginners to ROS 2. 
+Welcome to the **ROS 2 Part 2 Workshop** repository. This workspace-ready collection of educational modules is designed specifically for students and beginners to ROS 2. 
 
 Our goal is to build a solid foundation in the ROS 2 ecosystem by constructing a physical description (URDF) of a two-wheel differential drive (2WD) robot car and visualizing it inside RViz.
 
