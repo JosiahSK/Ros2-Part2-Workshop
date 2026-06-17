@@ -68,8 +68,21 @@ It allows you to configure node parameters, map topics, and start processes with
 You must run every node manually in separate terminals, configuring all parameters on the command line every time.
 
 ### 6. Common Beginner Mistakes
-* **Misspelling file names:** The launch file extension in ROS 2 must end with `.launch.py`. If you name it `.py` or `.launch`, the launch tool will not recognize it.
-* **Forgetting to edit setup.py:** Sourcing a launch file requires copying it to the install space. You must configure `setup.py` to install files from the `launch/` folder.
+* **Wrong launch file extension:** ROS 2 **requires** the launch file to end with `.launch.py`. A file named `display.launch` (without the `.py`) will **not** be recognized by `ros2 launch`. If you created your file without the `.py` extension, rename it:
+  ```bash
+  mv ~/robot_ws/src/robot_description/launch/display.launch \
+     ~/robot_ws/src/robot_description/launch/display.launch.py
+  ```
+* **Forgetting to update `setup.py`:** After renaming, verify that `setup.py` uses a glob pattern that only matches `.launch.py` files:
+  ```python
+  (os.path.join('share', package_name, 'launch'),
+      glob('launch/*.launch.py')),
+  ```
+  If `setup.py` used `glob('launch/*.launch')` it would no longer find the renamed file.
+* **Forgetting to install `joint-state-publisher-gui`:** The `display.launch.py` file launches `joint_state_publisher_gui`. Install it with:
+  ```bash
+  sudo apt install ros-humble-joint-state-publisher-gui
+  ```
 
 ### 7. Real Robot Relevance
 All production robots use launch files. When starting a robot, you run a master launch file (e.g., `bringup.launch.py`) that initializes the low-level hardware connections.

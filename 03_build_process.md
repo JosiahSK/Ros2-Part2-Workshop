@@ -37,10 +37,36 @@ To compile changes to a robot's navigation code, you must SSH into the onboard c
 
 ---
 
-## 💻 Command 2: Compiling the Workspace
+## 🧹 Command 2: Clean Build (Remove Old Artifacts)
+
+Whenever you make significant changes — such as renaming files, editing `setup.py`, or adding new folders — always perform a **clean build** to avoid stale cache errors:
 
 ```bash
-colcon build
+cd ~/robot_ws
+rm -rf build install log
+```
+
+### 1. Purpose
+Deletes the three build output directories (`build/`, `install/`, `log/`) so that the next `colcon build` compiles the entire workspace from scratch.
+
+### 2. Line-by-Line Explanation
+* `rm -rf`: Recursively and forcefully removes directories.
+* `build`: Temporary compiler artifacts.
+* `install`: Installed executables and share files. Deleting this forces a fresh install.
+* `log`: Build log files.
+
+### 3. Why It Is Needed
+Colcon caches previous build states. If you rename a launch file (e.g., `display.launch` → `display.launch.py`) or change `setup.py`, the old cached name may still exist in `install/`. A clean build guarantees the new file name is the only one registered.
+
+### 4. Common Beginner Mistakes
+* **Skipping the clean build after renaming files:** The old `.launch` file remains in `install/share/robot_description/launch/`, and ROS 2 may still try to run it instead of the corrected `.launch.py` file.
+
+---
+
+## 💻 Command 3: Compiling the Workspace
+
+```bash
+colcon build --symlink-install
 ```
 
 ### 1. Purpose
@@ -49,6 +75,7 @@ Compiles all packages inside the `src` directory, creating executable binaries a
 ### 2. Line-by-Line Explanation
 * `colcon`: **Collective Construction**. The standardized build tool used in ROS 2. It compiles CMake, Python, and other package formats in parallel.
 * `build`: The command action to start compiling.
+* `--symlink-install`: Instead of copying Python scripts and config files into `install/`, colcon creates **symbolic links** pointing back to the originals in `src/`. This means edits to Python launch files and URDF files take effect **immediately** without requiring a rebuild.
 
 ### 3. Expected Output
 ```text
@@ -85,10 +112,10 @@ After running `colcon build`, run `ls` in `~/robot_ws`. You will see three new d
 
 ---
 
-## 💻 Command 3: Sourcing the Local Workspace
+## 💻 Command 4: Sourcing the Local Workspace
 
 ```bash
-source install/setup.bash
+source ~/robot_ws/install/setup.bash
 ```
 
 ### 1. Purpose
@@ -113,6 +140,36 @@ ROS 2 commands like `ros2 launch` or `ros2 run` will return package not found er
 
 ### 7. Real Robot Relevance
 On real robots, you configure the shell to source your active workspace automatically upon startup.
+
+---
+
+## 💻 Command 5: Persist Sourcing to `.bashrc` (One-Time Setup)
+
+To avoid sourcing manually in every new terminal, append both source commands to your shell profile:
+
+```bash
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+echo "source ~/robot_ws/install/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### 1. Purpose
+Makes both the global ROS 2 environment and your custom workspace automatically active in every new terminal session.
+
+### 2. Line-by-Line Explanation
+* `echo "..." >> ~/.bashrc`: Appends the `source` command as a new line at the end of `~/.bashrc`.
+* `source ~/.bashrc`: Immediately reloads `~/.bashrc` in the current terminal so the change takes effect without logging out.
+
+### 3. Expected Output
+This command runs silently. Verify it worked by opening a new terminal and running:
+```bash
+ros2 pkg list | grep robot_description
+```
+Expected output: `robot_description`
+
+### 4. Common Beginner Mistakes
+* **Running this command more than once:** Each run appends another line to `.bashrc`. Running it twice results in duplicate source lines, which is harmless but clutters the file. Check with `tail -5 ~/.bashrc`.
+* **Wrong workspace path:** Ensure the path matches your actual workspace name (`robot_ws`).
 
 ---
 
