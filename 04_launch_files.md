@@ -89,9 +89,64 @@ All production robots use launch files. When starting a robot, you run a master 
 
 ---
 
-## ✍️ Creating a Simple Launch File
+## ✍️ Creating a Launch File — Step-by-Step
 
-Let's look at the structure of a standard ROS 2 launch file. Inside `launch/display.launch.py`, write this complete script:
+Follow these steps exactly to create the launch file with the **correct name and location**.
+
+---
+
+### Step 1: Create the `launch/` Directory
+
+The launch file must live inside a folder called `launch/` at the root of your package:
+
+```bash
+mkdir -p ~/robot_ws/src/robot_description/launch
+```
+
+**Why:** ROS 2 (via `setup.py`) looks for launch files inside this specific folder. If it does not exist, the build system has nothing to install.
+
+---
+
+### Step 2: Create the Launch File with the Correct Name
+
+> ⚠️ **Critical:** The file name **must** end with `.launch.py`. Do NOT name it `display.launch`, `display.py`, or anything else.
+
+Create the file using `touch` to guarantee the correct name:
+
+```bash
+touch ~/robot_ws/src/robot_description/launch/display.launch.py
+```
+
+Verify the file was created with the right name:
+
+```bash
+ls ~/robot_ws/src/robot_description/launch/
+```
+
+**Expected output:**
+```text
+display.launch.py
+```
+
+If you see `display.launch` (missing `.py`), rename it immediately:
+```bash
+mv ~/robot_ws/src/robot_description/launch/display.launch \
+   ~/robot_ws/src/robot_description/launch/display.launch.py
+```
+
+---
+
+### Step 3: Open the File for Editing
+
+```bash
+nano ~/robot_ws/src/robot_description/launch/display.launch.py
+```
+
+---
+
+### Step 4: Write the Launch Script
+
+Copy and paste this complete script into the file:
 
 ```python
 # display.launch.py
@@ -130,6 +185,51 @@ def generate_launch_description():
         rviz_node
     ])
 ```
+
+Save and exit: press `Ctrl+X`, then `Y`, then `Enter`.
+
+---
+
+### Step 5: Verify the Final Package Structure
+
+Before building, confirm your package looks like this:
+
+```bash
+ls ~/robot_ws/src/robot_description/
+```
+
+**Expected structure:**
+```text
+robot_description/
+├── launch/
+│   └── display.launch.py      ← ✅ Must end with .launch.py
+├── urdf/
+│   └── robot.urdf             ← (created in Module 05)
+├── robot_description/
+│   └── __init__.py
+├── package.xml
+├── setup.cfg
+└── setup.py
+```
+
+---
+
+### Step 6: Build and Run
+
+After creating the file, perform a clean build and launch:
+
+```bash
+# Clean and rebuild
+cd ~/robot_ws
+rm -rf build install log
+colcon build --symlink-install
+source install/setup.bash
+
+# Launch the file
+ros2 launch robot_description display.launch.py
+```
+
+
 
 ---
 
